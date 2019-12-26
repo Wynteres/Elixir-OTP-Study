@@ -8,12 +8,12 @@ defmodule Servy.Handler do
 
   def parse(request) do
     # TODO: Parse the request string into a map:
-    conv = %{ method: "GET", path: "/wildthings", resp_body: "" }
+    conv = %{method: "GET", path: "/wildthings", resp_body: ""}
   end
 
   def route(conv) do
     # TODO: Create a new map that also has the response body:
-    conv = %{ method: "GET", path: "/wildthings", resp_body: "Bears, Lions, Tigers" }
+    conv = %{method: "GET", path: "/wildthings", resp_body: "Bears, Lions, Tigers"}
   end
 
   def format_response(conv) do
@@ -38,4 +38,4 @@ Accept: */*
 
 response = Servy.Handler.handle(request)
 
-IO.puts response
+IO.puts(response)
