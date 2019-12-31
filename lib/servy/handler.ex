@@ -1,4 +1,6 @@
 defmodule Servy.Handler do
+  require Logger
+
   def handle(request) do
     request
     |> parse
@@ -10,7 +12,7 @@ defmodule Servy.Handler do
   end
 
   def error_track(%{status: 404, path: path} = conv) do
-    IO.puts("Warning: #{path} not found.")
+    Logger.warn("Warning: #{path} not found.")
     conv
   end
 
@@ -39,6 +41,7 @@ defmodule Servy.Handler do
     }
   end
 
+  #  Route functions
   def route(%{method: "GET", path: "/wildthings"} = conv) do
     %{conv | status: 200, resp_body: "Bears, Lions, Tigers"}
   end
@@ -47,14 +50,54 @@ defmodule Servy.Handler do
     %{conv | status: 200, resp_body: "Teddy, Smokey, Paddington, Polar"}
   end
 
+  def route(%{method: "GET", path: "/bears/new"} = conv) do
+    Path.expand("../pages", __DIR__)
+    |> Path.join("form.html")
+    |> File.read()
+    |> handle_file(conv)
+  end
+
   def route(%{method: "GET", path: "/bears/" <> id} = conv) do
     %{conv | status: 200, resp_body: "Bear #{id}"}
+  end
+
+  def route(%{method: "GET", path: "/about"} = conv) do
+    Path.expand("../pages", __DIR__)
+    |> Path.join("about.html")
+    |> File.read()
+    |> handle_file(conv)
+  end
+
+  def route(%{method: "DELETE", path: "/bears/" <> _id} = conv) do
+    %{conv | status: 403, resp_body: "Bears must never be deleted!"}
+  end
+
+  # Generic route functions
+  def route(%{method: "GET", path: "/pages/" <> page_name} = conv) do
+    Path.expand("../pages", __DIR__)
+    |> Path.join("#{page_name}.html")
+    |> File.read()
+    |> handle_file(conv)
   end
 
   def route(%{method: method, path: path} = conv) do
     %{conv | status: 404, resp_body: "#{method} for #{path} not found."}
   end
 
+  # File handle functions
+  def handle_file({:ok, content}, conv) do
+    %{conv | status: 200, resp_body: content}
+  end
+
+  def handle_file({:error, :enoent}, conv) do
+    %{conv | status: 404, resp_body: "File not found."}
+  end
+
+  def handle_file({:error, reason}, conv) do
+    %{conv | status: 500, resp_body: "File error: #{reason}"}
+  end
+
+  # Response format functions
   def format_response(conv) do
     # TODO: Use values in the map to create an HTTP response string:
     """
@@ -125,3 +168,51 @@ Accept: */*
 response = Servy.Handler.handle(request)
 
 IO.puts(response)
+
+request = """
+GET /about HTTP/1.1
+Host: example.com
+User-Agent: ExampleBrowser/1.0
+Accept: */*
+
+"""
+
+response = Servy.Handler.handle(request)
+
+IO.puts(response)
+
+request = """
+GET /bears/new HTTP/1.1
+Host: example.com
+User-Agent: ExampleBrowser/1.0
+Accept: */*
+
+"""
+
+response = Servy.Handler.handle(request)
+
+IO.puts(response)
+
+request = """
+GET /pages/contact HTTP/1.1
+Host: example.com
+User-Agent: ExampleBrowser/1.0
+Accept: */*
+
+"""
+
+response = Servy.Handler.handle(request)
+
+# IO.puts(response)
+
+request = """
+GET /pages/faq HTTP/1.1
+Host: example.com
+User-Agent: ExampleBrowser/1.0
+Accept: */*
+
+"""
+
+response = Servy.Handler.handle(request)
+
+# IO.puts(response)
