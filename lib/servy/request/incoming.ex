@@ -3,6 +3,8 @@ defmodule Servy.Request.Incoming do
     Functions to treat incoming requests before routing
   """
 
+  alias Servy.Conv
+
   @doc """
     Rewrites path to /wildlife redirects to /wildthings
   """
@@ -25,7 +27,7 @@ defmodule Servy.Request.Incoming do
       |> List.first()
       |> String.split(" ")
 
-    %{
+    %Conv{
       method: method,
       path: path,
       resp_body: "",

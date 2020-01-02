@@ -5,10 +5,12 @@ defmodule Servy.Monitoring do
 
   require Logger
 
+  alias Servy.Conv
+
   @doc """
     Logs 404 requests.
   """
-  def error_track(%{status: 404, path: path} = conv) do
+  def error_track(%Conv{status: 404, path: path} = conv) do
     Logger.warn("Warning: #{path} not found.")
     conv
   end
@@ -16,10 +18,10 @@ defmodule Servy.Monitoring do
   @doc """
     Default return
   """
-  def error_track(conv), do: conv
+  def error_track(%Conv{} = conv), do: conv
 
   @doc """
     Logs conversation param
   """
-  def log(conv), do: IO.inspect(conv)
+  def log(%Conv{} = conv), do: IO.inspect(conv)
 end
