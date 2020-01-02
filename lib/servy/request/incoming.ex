@@ -21,17 +21,16 @@ defmodule Servy.Request.Incoming do
     Parses incoming requet to a conversation map
   """
   def parse(request) do
-    [method, path | _] =
-      request
-      |> String.split("\n")
-      |> List.first()
-      |> String.split(" ")
+    [settings, params_string] = String.split(request, "\n\n")
+
+    [request_line | headers] = String.split(settings, "\n")
+
+    [method, path, _] = String.split(request_line, " ")
 
     %Conv{
       method: method,
       path: path,
-      resp_body: "",
-      status: nil
+      params: URI.decode_query(params_string)
     }
   end
 end

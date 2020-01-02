@@ -46,6 +46,14 @@ defmodule Servy.Request.Routing do
     |> handle_file(conv)
   end
 
+  def route(%Conv{method: "POST", path: "/bears"} = conv) do
+    %Conv{
+      conv
+      | status: 201,
+        resp_body: "Created a #{conv.params["type"]} bear named #{conv.params["name"]}!"
+    }
+  end
+
   def route(%Conv{method: method, path: path} = conv) do
     %Conv{conv | status: 404, resp_body: "#{method} for #{path} not found."}
   end
