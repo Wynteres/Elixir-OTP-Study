@@ -27,10 +27,31 @@ defmodule Servy.Request.Incoming do
 
     [method, path, _] = String.split(request_line, " ")
 
+    headers = parse_headers(headers, %{})
+
+    params = parse_params(headers["content-type"], params_string)
+
     %Conv{
       method: method,
       path: path,
-      params: URI.decode_query(params_string)
+      params: params,
+      headers: headers
     }
   end
+
+  defp parse_headers([head | tail], headers) do
+    [key, value] = String.split(head, ": ")
+
+    headers = Map.put(headers, key, value)
+
+    parse_headers(tail, headers)
+  end
+
+  defp parse_headers([], headers), do: headers
+
+  defp parse_params("application/x-www-form-urlencoded", params_string) do
+    params_string |> String.trim() |> URI.decode_query()
+  end
+
+  defp parse_params(_, _), do: %{}
 end
