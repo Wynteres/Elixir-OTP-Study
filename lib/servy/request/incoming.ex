@@ -27,12 +27,9 @@ defmodule Servy.Request.Incoming do
 
     [method, path, _] = String.split(request_line, " ")
 
-    headers = parse_headers(headers, %{})
-
-    IO.inspect(headers)
+    headers = parse_headers(headers)
 
     params = parse_params(headers["Content-Type"], params_string)
-    IO.inspect(params)
 
     %Conv{
       method: method,
@@ -42,15 +39,12 @@ defmodule Servy.Request.Incoming do
     }
   end
 
-  defp parse_headers([head | tail], headers) do
-    [key, value] = String.split(head, ": ")
-
-    headers = Map.put(headers, key, value)
-
-    parse_headers(tail, headers)
+  defp parse_headers(headers_line) do
+    Enum.reduce(headers_line, %{}, fn line, headers ->
+      [key, value] = String.split(line, ": ")
+      Map.put(headers, key, value)
+    end)
   end
-
-  defp parse_headers([], headers), do: headers
 
   defp parse_params("application/x-www-form-urlencoded", params_string) do
     params_string |> String.trim() |> URI.decode_query()
