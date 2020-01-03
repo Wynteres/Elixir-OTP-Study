@@ -29,7 +29,10 @@ defmodule Servy.Request.Incoming do
 
     headers = parse_headers(headers, %{})
 
-    params = parse_params(headers["content-type"], params_string)
+    IO.inspect(headers)
+
+    params = parse_params(headers["Content-Type"], params_string)
+    IO.inspect(params)
 
     %Conv{
       method: method,

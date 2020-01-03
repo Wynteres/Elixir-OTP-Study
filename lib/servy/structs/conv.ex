@@ -10,9 +10,6 @@ defmodule Servy.Conv do
     "#{conv.status} #{status_reason(conv.status)}"
   end
 
-  @doc """
-    Responds with the correct HTTP status description
-  """
   defp status_reason(code) do
     %{
       200 => "OK",
