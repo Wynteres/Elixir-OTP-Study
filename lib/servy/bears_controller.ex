@@ -5,9 +5,9 @@ defmodule Servy.BearsController do
   alias Servy.Wildthings
   alias Servy.Bear
 
-  import Servy.FileHandler, only: [handle_file: 2]
+  import Servy.ViewHelper, only: [render: 3]
 
-  @templates_path Path.expand("../../templates", __DIR__)
+  import Servy.FileHandler, only: [handle_file: 2]
 
   def index(conv) do
     bears =
@@ -40,14 +40,5 @@ defmodule Servy.BearsController do
 
   def delete(conv) do
     %Conv{conv | status: 403, resp_body: "Deleting a bear is forbidden!"}
-  end
-
-  defp render(conv, template, bindings \\ []) do
-    content =
-      @templates_path
-      |> Path.join(template)
-      |> EEx.eval_file(bindings)
-
-    %Conv{conv | status: 200, resp_body: content}
   end
 end
