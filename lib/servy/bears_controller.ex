@@ -7,19 +7,20 @@ defmodule Servy.BearsController do
 
   import Servy.FileHandler, only: [handle_file: 2]
 
+  @templates_path Path.expand("../../templates", __DIR__)
+
   def index(conv) do
     bears =
       Wildthings.list_bears()
       |> Enum.sort(&Bear.order_by_name/2)
-      |> Enum.map(&"<li>#{&1.name} - #{&1.type}</li>")
-      |> Enum.join()
 
-    %Conv{conv | status: 200, resp_body: "<ul>#{bears}</ul>"}
+    render(conv, "index.eex", bears: bears)
   end
 
   def show(conv, %{"id" => id}) do
     bear = Wildthings.get_bear(id)
-    %Conv{conv | status: 200, resp_body: "<h1>Bear #{bear.name}</h1>"}
+
+    render(conv, "show.eex", bear: bear)
   end
 
   def new(conv) do
@@ -39,5 +40,14 @@ defmodule Servy.BearsController do
 
   def delete(conv) do
     %Conv{conv | status: 403, resp_body: "Deleting a bear is forbidden!"}
+  end
+
+  defp render(conv, template, bindings \\ []) do
+    content =
+      @templates_path
+      |> Path.join(template)
+      |> EEx.eval_file(bindings)
+
+    %Conv{conv | status: 200, resp_body: content}
   end
 end
